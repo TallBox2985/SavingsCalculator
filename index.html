@@ -168,12 +168,6 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
 <h1>Savings Forecast</h1>
 <p class="subtitle">Project your total savings across all asset classes to a target retirement age.</p>
 
-<div class="btn-row">
-  <button class="btn-primary" onclick="saveDefaults()">Save as Default</button>
-  <button class="btn-secondary" onclick="resetDefaults()">Reset</button>
-  <span class="save-msg" id="save-msg">✓ Saved</span>
-</div>
-
 <!-- Total -->
 <div class="panel">
   <div class="total-label">Total Projected Savings</div>
@@ -347,6 +341,12 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
     <label>Annual Appreciation Rate</label>
     <div class="input-wrap"><input type="number" id="home-rate" value="4" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
+</div>
+
+<div class="btn-row" style="margin-top:20px;">
+  <button class="btn-primary" onclick="saveDefaults()">Save as Default</button>
+  <button class="btn-secondary" onclick="resetDefaults()">Restore Defaults</button>
+  <span class="save-msg" id="save-msg">✓ Saved</span>
 </div>
 ```
 
