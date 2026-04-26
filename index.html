@@ -407,13 +407,7 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
     }
 
     function resetDefaults() {
-      localStorage.removeItem('savings-defaults');
-      FIELDS.forEach(({ id, def }) => { document.getElementById(id).value = def; });
-      futureAge = FACTORY.futureAge;
-      document.getElementById('future-age').value = futureAge;
-      document.getElementById('future-age-display').textContent = futureAge;
-      exitYear = FACTORY.exitYear;
-      [3, 4, 5].forEach(n => document.getElementById('exit-' + n).classList.toggle('active', n === exitYear));
+      loadDefaults();
       calculate();
     }
 
