@@ -1,0 +1,382 @@
+import { useState, useEffect } from “react”;
+
+const fmt = (v) =>
+v >= 1e6
+? `$${(v / 1e6).toFixed(2)}M`
+: v >= 1e3
+? `$${(v / 1e3).toFixed(1)}K`
+: `$${Math.round(v).toLocaleString()}`;
+
+const fmtFull = (v) => `$${Math.round(v).toLocaleString()}`;
+
+const C = {
+bg: “#0b1d2a”,
+card: “#0f2a3d”,
+cardInner: “#0c2434”,
+border: “rgba(255,255,255,0.08)”,
+borderStrong: “#3a5a6b”,
+borderInput: “#cfe8f5”,
+label: “#cfe8f5”,
+labelDim: “#9fc4d8”,
+text: “#ffffff”,
+textDim: “#b8d4e3”,
+inputBg: “#ffffff”,
+inputText: “#000000”,
+accent: “#7fd3ff”,
+btnPrimary: “#1b5e7a”,
+btnBorder: “#7fd3ff”,
+};
+
+function SliderInput({ label, value, min, max, step = 1, onChange }) {
+return (
+<div style={{ marginBottom: 14 }}>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 5 }}>
+<label style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase” }}>{label}</label>
+<span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{value}</span>
+</div>
+<input
+type=“range” min={min} max={max} step={step} value={value}
+onChange={(e) => onChange(Number(e.target.value))}
+style={{ width: “100%”, accentColor: C.accent }}
+/>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginTop: 3 }}>
+<span style={{ fontSize: 10, color: C.labelDim }}>{min}</span>
+<span style={{ fontSize: 10, color: C.labelDim }}>{max}</span>
+</div>
+</div>
+);
+}
+
+function NumInput({ label, value, onChange, suffix = “” }) {
+const [raw, setRaw] = useState(String(value));
+useEffect(() => { setRaw(String(value)); }, [value]);
+return (
+<div style={{ marginBottom: 10 }}>
+<label style={{ display: “block”, fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase”, marginBottom: 5 }}>{label}</label>
+<div style={{ display: “flex”, alignItems: “center”, border: `1px solid ${C.borderInput}`, borderRadius: 6, overflow: “hidden”, background: C.inputBg }}>
+{!suffix && <span style={{ padding: “0 8px”, color: “#666”, fontSize: 14, fontFamily: “Arial, sans-serif” }}>$</span>}
+<input
+type=“number” value={raw}
+onChange={(e) => { setRaw(e.target.value); onChange(Number(e.target.value) || 0); }}
+onBlur={() => setRaw(String(value))}
+style={{ flex: 1, background: “transparent”, border: “none”, outline: “none”, color: C.inputText, fontSize: 15, padding: “9px 4px”, fontFamily: “Arial, sans-serif”, fontWeight: 300 }}
+/>
+{suffix && <span style={{ padding: “0 10px”, color: “#666”, fontSize: 14, fontFamily: “Arial, sans-serif” }}>{suffix}</span>}
+</div>
+</div>
+);
+}
+
+function MutualContribInput({ label, value, onChange, targetActive, resolvedContrib }) {
+const displayVal = targetActive ? Math.round(resolvedContrib) : value;
+const [raw, setRaw] = useState(String(displayVal));
+useEffect(() => { setRaw(String(displayVal)); }, [displayVal]);
+return (
+<div style={{ marginBottom: 10 }}>
+<label style={{ display: “block”, fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase”, marginBottom: 5 }}>{label}</label>
+<div style={{ display: “flex”, alignItems: “center”, border: `1px solid ${targetActive ? C.btnBorder : C.borderInput}`, borderRadius: 6, overflow: “hidden”, background: C.inputBg }}>
+<span style={{ padding: “0 8px”, color: “#666”, fontSize: 14, fontFamily: “Arial, sans-serif” }}>$</span>
+<input
+type=“number” value={raw} readOnly={targetActive}
+onChange={(e) => { if (!targetActive) { setRaw(e.target.value); onChange(Number(e.target.value) || 0); } }}
+onBlur={() => setRaw(String(displayVal))}
+style={{ flex: 1, background: “transparent”, border: “none”, outline: “none”, color: targetActive ? “#1b5e7a” : C.inputText, fontSize: 15, padding: “9px 4px”, fontFamily: “Arial, sans-serif”, fontWeight: 300 }}
+/>
+{targetActive && <span style={{ padding: “0 10px”, fontSize: 11, color: C.btnPrimary, fontWeight: 600, fontFamily: “Arial, sans-serif” }}>AUTO</span>}
+</div>
+</div>
+);
+}
+
+function SectionCard({ title, color, value, children, isOpen, onToggle }) {
+return (
+<div style={{
+background: C.card,
+border: `1px solid ${C.borderStrong}`,
+borderLeft: `3px solid ${color}`,
+borderRadius: 10,
+marginBottom: 10,
+boxShadow: `0 0 0 1px ${C.border}`,
+overflow: “hidden”,
+}}>
+<button onClick={onToggle} style={{
+width: “100%”, display: “flex”, justifyContent: “space-between”, alignItems: “center”,
+padding: “13px 16px”, background: “transparent”, border: “none”, cursor: “pointer”,
+}}>
+<div style={{ display: “flex”, alignItems: “center”, gap: 10 }}>
+<div style={{ width: 8, height: 8, borderRadius: “50%”, background: color, flexShrink: 0 }} />
+<span style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase” }}>{title}</span>
+</div>
+<div style={{ display: “flex”, alignItems: “center”, gap: 10 }}>
+<span style={{ fontSize: 15, fontWeight: 300, color: C.text }}>{value}</span>
+<span style={{ fontSize: 14, color: C.labelDim, display: “inline-block”, transform: isOpen ? “rotate(180deg)” : “none”, transition: “transform 0.2s” }}>▾</span>
+</div>
+</button>
+{isOpen && (
+<div style={{ padding: “4px 16px 14px”, borderTop: `1px solid ${C.borderStrong}` }}>
+{children}
+</div>
+)}
+</div>
+);
+}
+
+function computeSavings(state, currentAge, futureAge, mutualFundOverride = null) {
+const years = futureAge - currentAge;
+if (years <= 0) return { total: 0, breakdown: {} };
+
+const calc401k = () => {
+let v = state.k401.starting;
+for (let i = 0; i < years; i++) v = v * (1 + state.k401.rate / 100) + state.k401.contrib;
+return v;
+};
+
+const calcMutual = () => {
+const contrib = mutualFundOverride ?? state.mutual.contrib;
+let v = state.mutual.starting;
+for (let i = 0; i < years; i++) v = v * (1 + state.mutual.rate / 100) + contrib;
+return v;
+};
+
+const calcPE = () => {
+const finalPE = state.pe.starting * state.pe.multiplier;
+if (years <= state.pe.exitYear) {
+return state.pe.starting + (finalPE - state.pe.starting) * (years / state.pe.exitYear);
+}
+const remaining = years - state.pe.exitYear;
+let postV = finalPE;
+for (let i = 0; i < remaining; i++) postV = postV * (1 + state.pe.postRate / 100);
+return postV;
+};
+
+const calcPublic = () => {
+let v = state.pub.starting;
+for (let i = 0; i < years; i++) v = v * (1 + state.pub.rate / 100) + state.pub.contrib;
+return v;
+};
+
+const calcHome = () => state.home.starting * Math.pow(1 + state.home.rate / 100, years);
+
+const k401 = calc401k();
+const mutual = calcMutual();
+const pe = calcPE();
+const pub = calcPublic();
+const home = calcHome();
+
+return { total: k401 + mutual + pe + pub + home, breakdown: { k401, mutual, pe, pub, home } };
+}
+
+function solveContrib(state, currentAge, futureAge, target) {
+const years = futureAge - currentAge;
+if (years <= 0) return 0;
+const { breakdown } = computeSavings(state, currentAge, futureAge, 0);
+const fixed = breakdown.k401 + breakdown.pe + breakdown.pub + breakdown.home;
+const needed = target - fixed;
+if (needed <= 0) return 0;
+const r = state.mutual.rate / 100;
+const n = years;
+const fv_start = state.mutual.starting * Math.pow(1 + r, n);
+const fv_factor = r !== 0 ? (Math.pow(1 + r, n) - 1) / r : n;
+return Math.max(0, (needed - fv_start) / fv_factor);
+}
+
+export default function SavingsForecast() {
+const currentAge = 41;
+const [futureAge, setFutureAge] = useState(60);
+const [targetSum, setTargetSum] = useState(0);
+const [targetActive, setTargetActive] = useState(false);
+const [openCard, setOpenCard] = useState(“k401”);
+
+const [state, setState] = useState({
+k401:   { starting: 50000,  contrib: 22500, rate: 7 },
+mutual: { starting: 30000,  contrib: 12000, rate: 7 },
+pe:     { starting: 50000,  multiplier: 3,  exitYear: 4, postRate: 10 },
+pub:    { starting: 20000,  contrib: 10000, rate: 8 },
+home:   { starting: 200000, rate: 4 },
+});
+
+const set = (key, field) => (val) =>
+setState((s) => ({ …s, [key]: { …s[key], [field]: val } }));
+
+const resolvedContrib = targetActive && targetSum > 0
+? solveContrib(state, currentAge, futureAge, targetSum)
+: state.mutual.contrib;
+
+const { total, breakdown } = computeSavings(state, currentAge, futureAge, resolvedContrib);
+
+const cards = [
+{ key: “k401”,   label: “401(k)”,              color: “#4fc3f7” },
+{ key: “mutual”, label: “Mutual Funds”,         color: “#81c784” },
+{ key: “pe”,     label: “Private Equity”,       color: “#ffb74d” },
+{ key: “pub”,    label: “Public Equity / RSUs”, color: “#ce93d8” },
+{ key: “home”,   label: “Home Equity”,          color: “#f48fb1” },
+];
+
+const pct = (v) => total > 0 ? Math.round((v / total) * 100) : 0;
+const toggle = (key) => setOpenCard(openCard === key ? null : key);
+
+return (
+<div style={{
+fontFamily: “‘Inter’, Arial, sans-serif”,
+background: C.bg,
+backgroundImage: “linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)”,
+backgroundSize: “40px 40px”,
+minHeight: “100vh”,
+padding: “20px 14px 40px”,
+color: C.text,
+}}>
+<style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap'); * { box-sizing: border-box; } input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; } input[type=range] { cursor: pointer; }`}</style>
+
+```
+  {/* Header */}
+  <h1 style={{ fontSize: 24, fontWeight: 600, color: C.text, marginBottom: 6, letterSpacing: "0.5px" }}>Savings Forecast</h1>
+  <p style={{ color: C.textDim, fontSize: 13, lineHeight: 1.5, marginBottom: 20 }}>
+    Project your total savings across all asset classes to a target retirement age.
+  </p>
+
+  {/* Total result card */}
+  <div style={{
+    background: C.cardInner, border: `1px solid ${C.borderStrong}`, borderRadius: 10,
+    padding: "16px 20px", marginBottom: 12,
+    boxShadow: `0 0 0 1px ${C.border}, 0 8px 20px rgba(0,0,0,0.3)`,
+  }}>
+    <div style={{ fontSize: 11, fontWeight: 600, color: C.labelDim, textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: 5 }}>Total Projected Savings</div>
+    <div style={{ fontSize: 36, fontWeight: 300, color: C.text, lineHeight: 1 }}>{fmt(total)}</div>
+    <div style={{ fontSize: 12, color: C.labelDim, marginTop: 5 }}>at age {futureAge} · {futureAge - currentAge} years away</div>
+
+    <div style={{ marginTop: 14 }}>
+      <div style={{ display: "flex", height: 5, borderRadius: 3, overflow: "hidden", gap: 1 }}>
+        {cards.map(({ key, color }) => (
+          <div key={key} style={{ flex: Math.max(pct(breakdown[key] ?? 0), 0.5), background: color, transition: "flex 0.4s" }} />
+        ))}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginTop: 9 }}>
+        {cards.map(({ key, label, color }) => (
+          <div key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
+            <span style={{ fontSize: 10, color: C.labelDim }}>{label}</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: C.text }}>{fmt(breakdown[key] ?? 0)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  {/* Age panel */}
+  <div style={{
+    background: C.card, border: `1px solid ${C.borderStrong}`, borderRadius: 10,
+    padding: "16px 18px", marginBottom: 12,
+    boxShadow: `0 0 0 1px ${C.border}`,
+  }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <label style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: "0.5px", textTransform: "uppercase" }}>Current Age</label>
+      <span style={{ fontSize: 15, fontWeight: 600, color: C.text }}>41</span>
+    </div>
+    <SliderInput label="Forecast to Age" value={futureAge} min={42} max={90} onChange={setFutureAge} />
+  </div>
+
+  {/* Target Goal */}
+  <div style={{
+    background: C.card, border: `1px solid ${targetActive ? C.btnBorder + "99" : C.borderStrong}`,
+    borderRadius: 10, padding: "14px 18px", marginBottom: 12,
+    boxShadow: `0 0 0 1px ${C.border}`,
+  }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: targetActive ? 12 : 0 }}>
+      <div>
+        <div style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: "0.5px", textTransform: "uppercase" }}>Target Goal</div>
+        {targetActive && resolvedContrib > 0 && (
+          <div style={{ fontSize: 11, color: C.labelDim, marginTop: 3 }}>
+            Mutual fund contrib → <span style={{ color: "#81c784", fontWeight: 600 }}>{fmtFull(resolvedContrib)}/yr</span>
+          </div>
+        )}
+      </div>
+      <button onClick={() => setTargetActive((v) => !v)} style={{
+        padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600,
+        fontFamily: "'Inter', Arial, sans-serif", letterSpacing: "0.5px",
+        background: targetActive ? C.btnPrimary : "transparent",
+        color: targetActive ? "#fff" : C.labelDim,
+        border: `1px solid ${targetActive ? C.btnBorder : "#5f7f8f"}`,
+      }}>
+        {targetActive ? "ON" : "OFF"}
+      </button>
+    </div>
+    {targetActive && (
+      <>
+        <NumInput label="Desired Total at Future Age" value={targetSum} onChange={setTargetSum} />
+        {targetSum > 0 && total >= targetSum && (
+          <p style={{ fontSize: 11, color: "#81c784", marginTop: 4 }}>✓ Goal achievable — mutual fund contributions adjusted</p>
+        )}
+        {targetSum > 0 && resolvedContrib === 0 && total < targetSum && (
+          <p style={{ fontSize: 11, color: "#ef9a9a", marginTop: 4 }}>⚠ Goal not reachable within this timeframe</p>
+        )}
+      </>
+    )}
+  </div>
+
+  {/* 401k */}
+  <SectionCard title="401(k)" color="#4fc3f7" value={fmt(breakdown.k401 ?? 0)} isOpen={openCard === "k401"} onToggle={() => toggle("k401")}>
+    <div style={{ height: 12 }} />
+    <NumInput label="Starting Value" value={state.k401.starting} onChange={set("k401", "starting")} />
+    <NumInput label="Annual Contribution" value={state.k401.contrib} onChange={set("k401", "contrib")} />
+    <NumInput label="Annual Return Rate" value={state.k401.rate} onChange={set("k401", "rate")} suffix="%" />
+  </SectionCard>
+
+  {/* Mutual Funds */}
+  <SectionCard title="Mutual Funds" color="#81c784" value={fmt(breakdown.mutual ?? 0)} isOpen={openCard === "mutual"} onToggle={() => toggle("mutual")}>
+    <div style={{ height: 12 }} />
+    <NumInput label="Starting Value" value={state.mutual.starting} onChange={set("mutual", "starting")} />
+    <MutualContribInput
+      label="Annual Contribution"
+      value={state.mutual.contrib}
+      onChange={set("mutual", "contrib")}
+      targetActive={targetActive}
+      resolvedContrib={resolvedContrib}
+    />
+    <NumInput label="Annual Return Rate" value={state.mutual.rate} onChange={set("mutual", "rate")} suffix="%" />
+  </SectionCard>
+
+  {/* Private Equity */}
+  <SectionCard title="Private Equity" color="#ffb74d" value={fmt(breakdown.pe ?? 0)} isOpen={openCard === "pe"} onToggle={() => toggle("pe")}>
+    <div style={{ height: 12 }} />
+    <NumInput label="Starting Value" value={state.pe.starting} onChange={set("pe", "starting")} />
+    <NumInput label="Capital Multiplier" value={state.pe.multiplier} onChange={set("pe", "multiplier")} suffix="×" />
+    <div style={{ marginBottom: 10 }}>
+      <label style={{ display: "block", fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 5 }}>Exit Year</label>
+      <div style={{ display: "flex", gap: 8 }}>
+        {[3, 4, 5].map((y) => (
+          <button key={y} onClick={() => set("pe", "exitYear")(y)} style={{
+            flex: 1, padding: "9px 0", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600,
+            fontFamily: "'Inter', Arial, sans-serif",
+            background: state.pe.exitYear === y ? C.btnPrimary : "transparent",
+            color: state.pe.exitYear === y ? "#fff" : C.labelDim,
+            border: `1px solid ${state.pe.exitYear === y ? C.btnBorder : "#5f7f8f"}`,
+          }}>Year {y}</button>
+        ))}
+      </div>
+    </div>
+    <NumInput label="Post-Exit Annual Return Rate" value={state.pe.postRate} onChange={set("pe", "postRate")} suffix="%" />
+    <p style={{ fontSize: 11, color: C.labelDim, marginTop: 6, lineHeight: 1.5 }}>
+      Exit value of {fmt(state.pe.starting * state.pe.multiplier)} at year {state.pe.exitYear}, then compounds at {state.pe.postRate}% annually.
+    </p>
+  </SectionCard>
+
+  {/* Public Equity */}
+  <SectionCard title="Public Equity / RSUs" color="#ce93d8" value={fmt(breakdown.pub ?? 0)} isOpen={openCard === "pub"} onToggle={() => toggle("pub")}>
+    <div style={{ height: 12 }} />
+    <NumInput label="Starting Value" value={state.pub.starting} onChange={set("pub", "starting")} />
+    <NumInput label="Annual Contribution / RSU Vest" value={state.pub.contrib} onChange={set("pub", "contrib")} />
+    <NumInput label="Annual Return Rate" value={state.pub.rate} onChange={set("pub", "rate")} suffix="%" />
+  </SectionCard>
+
+  {/* Home Equity */}
+  <SectionCard title="Home Equity" color="#f48fb1" value={fmt(breakdown.home ?? 0)} isOpen={openCard === "home"} onToggle={() => toggle("home")}>
+    <div style={{ height: 12 }} />
+    <NumInput label="Current Equity Value" value={state.home.starting} onChange={set("home", "starting")} />
+    <NumInput label="Annual Appreciation Rate" value={state.home.rate} onChange={set("home", "rate")} suffix="%" />
+  </SectionCard>
+
+</div>
+```
+
+);
+} 
