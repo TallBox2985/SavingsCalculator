@@ -15,35 +15,38 @@
 ```
 body {
   font-family: 'Inter', Arial, sans-serif;
-  background: #060f17;
+  background: #0b1d2a;
   background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 40px 40px;
   min-height: 100vh;
-  padding: 20px 14px 50px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 14px;
   color: #fff;
+}
+
+.container {
+  width: 100%;
+  max-width: 860px;
+  background: #0f2a3d;
+  border-radius: 14px;
+  padding: 24px 28px 32px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 12px 30px rgba(0,0,0,0.4);
 }
 
 h1 { font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 6px; letter-spacing: 0.5px; }
 .subtitle { color: #b8d4e3; font-size: 13px; line-height: 1.5; margin-bottom: 20px; }
 
+/* Inner panels — sit inside the container */
 .panel {
-  background: #0f2a3d;
+  background: #0c2434;
   border: 1px solid #3a5a6b;
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 12px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
-}
-
-.panel-inner {
-  background: #0c2434;
-  border: 1px solid #3a5a6b;
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 12px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.3);
 }
 
 label, .field-label {
@@ -76,23 +79,21 @@ label, .field-label {
   color: #000; font-size: 15px; padding: 9px 4px;
   font-family: Arial, sans-serif; font-weight: 300;
 }
+.input-wrap input[type=number]:focus { box-shadow: none; }
 .input-wrap input[type=number].auto-val { color: #1b5e7a; }
 .auto-tag { padding: 0 10px; font-size: 11px; color: #1b5e7a; font-weight: 600; }
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-input[type=range] {
-  width: 100%; cursor: pointer; accent-color: #7fd3ff;
-}
+input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
 .slider-minmax { display: flex; justify-content: space-between; margin-top: 3px; }
 .slider-minmax span { font-size: 10px; color: #9fc4d8; }
 
-/* Total card */
+/* Total summary */
 .total-label { font-size: 11px; font-weight: 600; color: #9fc4d8; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
 .total-value { font-size: 36px; font-weight: 300; color: #fff; line-height: 1; }
 .total-sub { font-size: 12px; color: #9fc4d8; margin-top: 5px; }
 
-/* Breakdown bar */
 .bar-wrap { display: flex; height: 5px; border-radius: 3px; overflow: hidden; gap: 1px; margin-top: 14px; }
 .bar-seg { transition: flex 0.4s; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 9px; }
@@ -103,10 +104,9 @@ input[type=range] {
 
 /* Section cards */
 .section-card {
-  border: 1px solid #3a5a6b;
-  border-radius: 10px;
+  border: 1px solid #4f7286;
+  border-radius: 8px;
   margin-bottom: 10px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
   overflow: hidden;
   background: #0f2a3d;
 }
@@ -131,16 +131,15 @@ input[type=range] {
   flex: 1; padding: 9px 0; border-radius: 6px; cursor: pointer;
   font-size: 13px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;
   background: transparent; color: #9fc4d8; border: 1px solid #5f7f8f;
-  transition: all 0.15s;
 }
 .exit-btn.active { background: #1b5e7a; color: #fff; border-color: #7fd3ff; }
 
-/* Target goal toggle */
+/* Target goal */
 .toggle-btn {
   padding: 6px 14px; border-radius: 6px; cursor: pointer;
   font-size: 12px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;
   letter-spacing: 0.5px; background: transparent; color: #9fc4d8;
-  border: 1px solid #5f7f8f; transition: all 0.15s;
+  border: 1px solid #5f7f8f;
 }
 .toggle-btn.active { background: #1b5e7a; color: #fff; border-color: #7fd3ff; }
 
@@ -154,192 +153,189 @@ input[type=range] {
   </style>
 </head>
 <body>
+  <div class="container">
 
-  <h1>Savings Forecast</h1>
-  <p class="subtitle">Project your total savings across all asset classes to a target retirement age.</p>
+```
+<h1>Savings Forecast</h1>
+<p class="subtitle">Project your total savings across all asset classes to a target retirement age.</p>
 
-  <!-- Total -->
-
-  <div class="panel-inner">
-    <div class="total-label">Total Projected Savings</div>
-    <div class="total-value" id="total-value">$0</div>
-    <div class="total-sub" id="total-sub">at age 60 · 19 years away</div>
-    <div class="bar-wrap" id="bar-wrap">
-      <div class="bar-seg" id="bar-k401"   style="background:#4fc3f7"></div>
-      <div class="bar-seg" id="bar-mutual" style="background:#81c784"></div>
-      <div class="bar-seg" id="bar-pe"     style="background:#ffb74d"></div>
-      <div class="bar-seg" id="bar-pub"    style="background:#ce93d8"></div>
-      <div class="bar-seg" id="bar-home"   style="background:#f48fb1"></div>
-    </div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div><span class="legend-name">401(k)</span><span class="legend-val" id="leg-k401">$0</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#81c784"></div><span class="legend-name">Mutual Funds</span><span class="legend-val" id="leg-mutual">$0</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ffb74d"></div><span class="legend-name">Private Equity</span><span class="legend-val" id="leg-pe">$0</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ce93d8"></div><span class="legend-name">Public Equity / RSUs</span><span class="legend-val" id="leg-pub">$0</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#f48fb1"></div><span class="legend-name">Home Equity</span><span class="legend-val" id="leg-home">$0</span></div>
-    </div>
+<!-- Total -->
+<div class="panel">
+  <div class="total-label">Total Projected Savings</div>
+  <div class="total-value" id="total-value">$0</div>
+  <div class="total-sub" id="total-sub">at age 60 · 19 years away</div>
+  <div class="bar-wrap">
+    <div class="bar-seg" id="bar-k401"   style="background:#4fc3f7"></div>
+    <div class="bar-seg" id="bar-mutual" style="background:#81c784"></div>
+    <div class="bar-seg" id="bar-pe"     style="background:#ffb74d"></div>
+    <div class="bar-seg" id="bar-pub"    style="background:#ce93d8"></div>
+    <div class="bar-seg" id="bar-home"   style="background:#f48fb1"></div>
   </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div><span class="legend-name">401(k)</span><span class="legend-val" id="leg-k401">$0</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#81c784"></div><span class="legend-name">Mutual Funds</span><span class="legend-val" id="leg-mutual">$0</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffb74d"></div><span class="legend-name">Private Equity</span><span class="legend-val" id="leg-pe">$0</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ce93d8"></div><span class="legend-name">Public Equity / RSUs</span><span class="legend-val" id="leg-pub">$0</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f48fb1"></div><span class="legend-name">Home Equity</span><span class="legend-val" id="leg-home">$0</span></div>
+  </div>
+</div>
 
-  <!-- Age -->
-
-  <div class="panel">
-    <div class="row" style="margin-bottom:16px;">
-      <label style="margin-bottom:0">Current Age</label>
-      <span style="font-size:15px;font-weight:600;color:#fff;">41</span>
+<!-- Age -->
+<div class="panel">
+  <div class="row" style="margin-bottom:16px;">
+    <label style="margin-bottom:0">Current Age</label>
+    <span style="font-size:15px;font-weight:600;color:#fff;">41</span>
+  </div>
+  <div>
+    <div class="row">
+      <label style="margin-bottom:0">Forecast to Age</label>
+      <span style="font-size:13px;font-weight:600;color:#fff;" id="future-age-display">60</span>
     </div>
+    <input type="range" id="future-age" min="42" max="90" value="60" oninput="onFutureAge(this.value)" />
+    <div class="slider-minmax"><span>42</span><span>90</span></div>
+  </div>
+</div>
+
+<!-- Target Goal -->
+<div class="panel" id="target-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
-      <div class="row">
-        <label style="margin-bottom:0">Forecast to Age</label>
-        <span style="font-size:13px;font-weight:600;color:#fff;" id="future-age-display">60</span>
-      </div>
-      <input type="range" id="future-age" min="42" max="90" value="60" oninput="onFutureAge(this.value)" />
-      <div class="slider-minmax"><span>42</span><span>90</span></div>
+      <div class="field-label" style="margin-bottom:0">Target Goal</div>
+      <div class="target-hint" id="target-hint" style="display:none"></div>
     </div>
+    <button class="toggle-btn" id="target-toggle" onclick="toggleTarget()">OFF</button>
   </div>
-
-  <!-- Target Goal -->
-
-  <div class="panel" id="target-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div class="field-label" style="margin-bottom:0">Target Goal</div>
-        <div class="target-hint" id="target-hint" style="display:none"></div>
-      </div>
-      <button class="toggle-btn" id="target-toggle" onclick="toggleTarget()">OFF</button>
+  <div id="target-inputs" style="display:none;margin-top:12px;">
+    <div class="field-label">Desired Total at Future Age</div>
+    <div class="input-wrap">
+      <span class="input-prefix">$</span>
+      <input type="number" id="target-sum" value="0" oninput="calculate()" />
     </div>
-    <div id="target-inputs" style="display:none;margin-top:12px;">
-      <div class="field-label">Desired Total at Future Age</div>
-      <div class="input-wrap">
-        <span class="input-prefix">$</span>
-        <input type="number" id="target-sum" value="0" oninput="calculate()" />
-      </div>
-      <div id="target-msg"></div>
-    </div>
+    <div id="target-msg"></div>
   </div>
+</div>
 
-  <!-- 401k -->
-
-  <div class="section-card">
-    <button class="section-header" style="border-left-color:#4fc3f7" onclick="toggleCard('k401')">
-      <div class="section-header-left">
-        <div class="section-dot" style="background:#4fc3f7"></div>
-        <span class="section-title">401(k)</span>
-      </div>
-      <div class="section-header-right">
-        <span class="section-val" id="card-val-k401">$0</span>
-        <span class="section-chevron open" id="chev-k401">▾</span>
-      </div>
-    </button>
-    <div class="section-body open" id="body-k401">
-      <label>Starting Value</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-starting" value="50000" oninput="calculate()" /></div>
-      <label>Annual Contribution</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-contrib" value="22500" oninput="calculate()" /></div>
-      <label>Annual Return Rate</label>
-      <div class="input-wrap"><input type="number" id="k401-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
+<!-- 401k -->
+<div class="section-card">
+  <button class="section-header" style="border-left-color:#4fc3f7" onclick="toggleCard('k401')">
+    <div class="section-header-left">
+      <div class="section-dot" style="background:#4fc3f7"></div>
+      <span class="section-title">401(k)</span>
     </div>
-  </div>
-
-  <!-- Mutual Funds -->
-
-  <div class="section-card">
-    <button class="section-header" style="border-left-color:#81c784" onclick="toggleCard('mutual')">
-      <div class="section-header-left">
-        <div class="section-dot" style="background:#81c784"></div>
-        <span class="section-title">Mutual Funds</span>
-      </div>
-      <div class="section-header-right">
-        <span class="section-val" id="card-val-mutual">$0</span>
-        <span class="section-chevron" id="chev-mutual">▾</span>
-      </div>
-    </button>
-    <div class="section-body" id="body-mutual">
-      <label>Starting Value</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="mutual-starting" value="30000" oninput="calculate()" /></div>
-      <label>Annual Contribution</label>
-      <div class="input-wrap" id="mutual-contrib-wrap">
-        <span class="input-prefix">$</span>
-        <input type="number" id="mutual-contrib" value="12000" oninput="calculate()" />
-        <span class="auto-tag" id="mutual-auto-tag" style="display:none">AUTO</span>
-      </div>
-      <label>Annual Return Rate</label>
-      <div class="input-wrap"><input type="number" id="mutual-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="section-header-right">
+      <span class="section-val" id="card-val-k401">$0</span>
+      <span class="section-chevron open" id="chev-k401">▾</span>
     </div>
+  </button>
+  <div class="section-body open" id="body-k401">
+    <label>Starting Value</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-starting" value="50000" oninput="calculate()" /></div>
+    <label>Annual Contribution</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-contrib" value="22500" oninput="calculate()" /></div>
+    <label>Annual Return Rate</label>
+    <div class="input-wrap"><input type="number" id="k401-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
+</div>
 
-  <!-- Private Equity -->
-
-  <div class="section-card">
-    <button class="section-header" style="border-left-color:#ffb74d" onclick="toggleCard('pe')">
-      <div class="section-header-left">
-        <div class="section-dot" style="background:#ffb74d"></div>
-        <span class="section-title">Private Equity</span>
-      </div>
-      <div class="section-header-right">
-        <span class="section-val" id="card-val-pe">$0</span>
-        <span class="section-chevron" id="chev-pe">▾</span>
-      </div>
-    </button>
-    <div class="section-body" id="body-pe">
-      <label>Starting Value</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pe-starting" value="50000" oninput="calculate()" /></div>
-      <label>Capital Multiplier</label>
-      <div class="input-wrap"><input type="number" id="pe-multiplier" value="3" oninput="calculate()" /><span class="input-suffix">×</span></div>
-      <div class="field-label">Exit Year</div>
-      <div class="exit-btns">
-        <button class="exit-btn" id="exit-3" onclick="setExitYear(3)">Year 3</button>
-        <button class="exit-btn active" id="exit-4" onclick="setExitYear(4)">Year 4</button>
-        <button class="exit-btn" id="exit-5" onclick="setExitYear(5)">Year 5</button>
-      </div>
-      <label>Post-Exit Annual Return Rate</label>
-      <div class="input-wrap"><input type="number" id="pe-postrate" value="10" oninput="calculate()" /><span class="input-suffix">%</span></div>
-      <p class="note" id="pe-note"></p>
+<!-- Mutual Funds -->
+<div class="section-card">
+  <button class="section-header" style="border-left-color:#81c784" onclick="toggleCard('mutual')">
+    <div class="section-header-left">
+      <div class="section-dot" style="background:#81c784"></div>
+      <span class="section-title">Mutual Funds</span>
     </div>
-  </div>
-
-  <!-- Public Equity -->
-
-  <div class="section-card">
-    <button class="section-header" style="border-left-color:#ce93d8" onclick="toggleCard('pub')">
-      <div class="section-header-left">
-        <div class="section-dot" style="background:#ce93d8"></div>
-        <span class="section-title">Public Equity / RSUs</span>
-      </div>
-      <div class="section-header-right">
-        <span class="section-val" id="card-val-pub">$0</span>
-        <span class="section-chevron" id="chev-pub">▾</span>
-      </div>
-    </button>
-    <div class="section-body" id="body-pub">
-      <label>Starting Value</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-starting" value="20000" oninput="calculate()" /></div>
-      <label>Annual Contribution / RSU Vest</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-contrib" value="10000" oninput="calculate()" /></div>
-      <label>Annual Return Rate</label>
-      <div class="input-wrap"><input type="number" id="pub-rate" value="8" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="section-header-right">
+      <span class="section-val" id="card-val-mutual">$0</span>
+      <span class="section-chevron" id="chev-mutual">▾</span>
     </div>
-  </div>
-
-  <!-- Home Equity -->
-
-  <div class="section-card">
-    <button class="section-header" style="border-left-color:#f48fb1" onclick="toggleCard('home')">
-      <div class="section-header-left">
-        <div class="section-dot" style="background:#f48fb1"></div>
-        <span class="section-title">Home Equity</span>
-      </div>
-      <div class="section-header-right">
-        <span class="section-val" id="card-val-home">$0</span>
-        <span class="section-chevron" id="chev-home">▾</span>
-      </div>
-    </button>
-    <div class="section-body" id="body-home">
-      <label>Current Equity Value</label>
-      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="home-starting" value="200000" oninput="calculate()" /></div>
-      <label>Annual Appreciation Rate</label>
-      <div class="input-wrap"><input type="number" id="home-rate" value="4" oninput="calculate()" /><span class="input-suffix">%</span></div>
+  </button>
+  <div class="section-body" id="body-mutual">
+    <label>Starting Value</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="mutual-starting" value="30000" oninput="calculate()" /></div>
+    <label>Annual Contribution</label>
+    <div class="input-wrap" id="mutual-contrib-wrap">
+      <span class="input-prefix">$</span>
+      <input type="number" id="mutual-contrib" value="12000" oninput="calculate()" />
+      <span class="auto-tag" id="mutual-auto-tag" style="display:none">AUTO</span>
     </div>
+    <label>Annual Return Rate</label>
+    <div class="input-wrap"><input type="number" id="mutual-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
+</div>
+
+<!-- Private Equity -->
+<div class="section-card">
+  <button class="section-header" style="border-left-color:#ffb74d" onclick="toggleCard('pe')">
+    <div class="section-header-left">
+      <div class="section-dot" style="background:#ffb74d"></div>
+      <span class="section-title">Private Equity</span>
+    </div>
+    <div class="section-header-right">
+      <span class="section-val" id="card-val-pe">$0</span>
+      <span class="section-chevron" id="chev-pe">▾</span>
+    </div>
+  </button>
+  <div class="section-body" id="body-pe">
+    <label>Starting Value</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pe-starting" value="50000" oninput="calculate()" /></div>
+    <label>Capital Multiplier</label>
+    <div class="input-wrap"><input type="number" id="pe-multiplier" value="3" oninput="calculate()" /><span class="input-suffix">×</span></div>
+    <div class="field-label">Exit Year</div>
+    <div class="exit-btns">
+      <button class="exit-btn" id="exit-3" onclick="setExitYear(3)">Year 3</button>
+      <button class="exit-btn active" id="exit-4" onclick="setExitYear(4)">Year 4</button>
+      <button class="exit-btn" id="exit-5" onclick="setExitYear(5)">Year 5</button>
+    </div>
+    <label>Post-Exit Annual Return Rate</label>
+    <div class="input-wrap"><input type="number" id="pe-postrate" value="10" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <p class="note" id="pe-note"></p>
+  </div>
+</div>
+
+<!-- Public Equity -->
+<div class="section-card">
+  <button class="section-header" style="border-left-color:#ce93d8" onclick="toggleCard('pub')">
+    <div class="section-header-left">
+      <div class="section-dot" style="background:#ce93d8"></div>
+      <span class="section-title">Public Equity / RSUs</span>
+    </div>
+    <div class="section-header-right">
+      <span class="section-val" id="card-val-pub">$0</span>
+      <span class="section-chevron" id="chev-pub">▾</span>
+    </div>
+  </button>
+  <div class="section-body" id="body-pub">
+    <label>Starting Value</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-starting" value="20000" oninput="calculate()" /></div>
+    <label>Annual Contribution / RSU Vest</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-contrib" value="10000" oninput="calculate()" /></div>
+    <label>Annual Return Rate</label>
+    <div class="input-wrap"><input type="number" id="pub-rate" value="8" oninput="calculate()" /><span class="input-suffix">%</span></div>
+  </div>
+</div>
+
+<!-- Home Equity -->
+<div class="section-card">
+  <button class="section-header" style="border-left-color:#f48fb1" onclick="toggleCard('home')">
+    <div class="section-header-left">
+      <div class="section-dot" style="background:#f48fb1"></div>
+      <span class="section-title">Home Equity</span>
+    </div>
+    <div class="section-header-right">
+      <span class="section-val" id="card-val-home">$0</span>
+      <span class="section-chevron" id="chev-home">▾</span>
+    </div>
+  </button>
+  <div class="section-body" id="body-home">
+    <label>Current Equity Value</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="home-starting" value="200000" oninput="calculate()" /></div>
+    <label>Annual Appreciation Rate</label>
+    <div class="input-wrap"><input type="number" id="home-rate" value="4" oninput="calculate()" /><span class="input-suffix">%</span></div>
+  </div>
+</div>
+```
+
+  </div><!-- end .container -->
 
   <script>
     const CURRENT_AGE = 41;
@@ -424,31 +420,27 @@ input[type=range] {
         document.getElementById('mutual-auto-tag').style.display = '';
         document.getElementById('mutual-contrib-wrap').classList.add('auto-mode');
       } else {
-        const mutualInput = document.getElementById('mutual-contrib');
-        mutualInput.classList.remove('auto-val');
+        document.getElementById('mutual-contrib').classList.remove('auto-val');
         document.getElementById('mutual-auto-tag').style.display = 'none';
         document.getElementById('mutual-contrib-wrap').classList.remove('auto-mode');
       }
 
-      const k401  = calc401k(years);
+      const k401   = calc401k(years);
       const mutual = calcMutual(years, targetActive && targetSum > 0 ? resolvedContrib : undefined);
-      const pe    = calcPE(years);
-      const pub   = calcPublic(years);
-      const home  = calcHome(years);
-      const total = k401 + mutual + pe + pub + home;
+      const pe     = calcPE(years);
+      const pub    = calcPublic(years);
+      const home   = calcHome(years);
+      const total  = k401 + mutual + pe + pub + home;
 
-      // Update total
       document.getElementById('total-value').textContent = fmt(total);
       document.getElementById('total-sub').textContent = `at age ${futureAge} · ${years} years away`;
 
-      // Update legend
       document.getElementById('leg-k401').textContent   = fmt(k401);
       document.getElementById('leg-mutual').textContent = fmt(mutual);
       document.getElementById('leg-pe').textContent     = fmt(pe);
       document.getElementById('leg-pub').textContent    = fmt(pub);
       document.getElementById('leg-home').textContent   = fmt(home);
 
-      // Update bar
       const pct = (val) => total > 0 ? Math.max((val / total) * 100, 0.5) : 0.5;
       document.getElementById('bar-k401').style.flex   = pct(k401);
       document.getElementById('bar-mutual').style.flex = pct(mutual);
@@ -456,20 +448,16 @@ input[type=range] {
       document.getElementById('bar-pub').style.flex    = pct(pub);
       document.getElementById('bar-home').style.flex   = pct(home);
 
-      // Update section card values
       document.getElementById('card-val-k401').textContent   = fmt(k401);
       document.getElementById('card-val-mutual').textContent = fmt(mutual);
       document.getElementById('card-val-pe').textContent     = fmt(pe);
       document.getElementById('card-val-pub').textContent    = fmt(pub);
       document.getElementById('card-val-home').textContent   = fmt(home);
 
-      // PE note
-      const peStart = v('pe-starting');
-      const peExit = peStart * v('pe-multiplier');
+      const peExit = v('pe-starting') * v('pe-multiplier');
       document.getElementById('pe-note').textContent =
         `Exit value of ${fmt(peExit)} at year ${exitYear}, then compounds at ${v('pe-postrate')}% annually.`;
 
-      // Target messages
       if (targetActive && targetSum > 0) {
         const hint = document.getElementById('target-hint');
         hint.style.display = '';
@@ -496,7 +484,7 @@ input[type=range] {
 
     function setExitYear(y) {
       exitYear = y;
-      [3,4,5].forEach(n => {
+      [3, 4, 5].forEach(n => {
         document.getElementById('exit-' + n).classList.toggle('active', n === y);
       });
       calculate();
@@ -516,7 +504,6 @@ input[type=range] {
       btn.classList.toggle('active', targetActive);
       document.getElementById('target-inputs').style.display = targetActive ? 'block' : 'none';
       if (!targetActive) {
-        // Restore user's manual contrib value
         document.getElementById('mutual-contrib').classList.remove('auto-val');
         document.getElementById('mutual-auto-tag').style.display = 'none';
         document.getElementById('mutual-contrib-wrap').classList.remove('auto-mode');
@@ -526,7 +513,7 @@ input[type=range] {
       calculate();
     }
 
-    calculate();
+    window.addEventListener('DOMContentLoaded', calculate);
   </script>
 
 </body>
