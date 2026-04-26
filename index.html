@@ -183,8 +183,8 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div><span class="legend-name">401(k)</span><span class="legend-val" id="leg-k401">$0</span></div>
     <div class="legend-item"><div class="legend-dot" style="background:#81c784"></div><span class="legend-name">Mutual Funds</span><span class="legend-val" id="leg-mutual">$0</span></div>
-    <div class="legend-item"><div class="legend-dot" style="background:#ffb74d"></div><span class="legend-name">Private Equity</span><span class="legend-val" id="leg-pe">$0</span></div>
-    <div class="legend-item"><div class="legend-dot" style="background:#ce93d8"></div><span class="legend-name">Public Equity / RSUs</span><span class="legend-val" id="leg-pub">$0</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffb74d"></div><span class="legend-name">Guidehouse Class A/B Equity</span><span class="legend-val" id="leg-pe">$0</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ce93d8"></div><span class="legend-name">AECOM Stock</span><span class="legend-val" id="leg-pub">$0</span></div>
     <div class="legend-item"><div class="legend-dot" style="background:#f48fb1"></div><span class="legend-name">Home Equity</span><span class="legend-val" id="leg-home">$0</span></div>
   </div>
 </div>
@@ -238,11 +238,11 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   </button>
   <div class="section-body open" id="body-k401">
     <label>Starting Value</label>
-    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-starting" value="50000" oninput="calculate()" /></div>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-starting" value="140000" oninput="calculate()" /></div>
     <label>Annual Contribution</label>
     <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-contrib" value="22500" oninput="calculate()" /></div>
     <label>Annual Return Rate</label>
-    <div class="input-wrap"><input type="number" id="k401-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="input-wrap"><input type="number" id="k401-rate" value="6" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
 </div>
 
@@ -260,24 +260,24 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   </button>
   <div class="section-body" id="body-mutual">
     <label>Starting Value</label>
-    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="mutual-starting" value="30000" oninput="calculate()" /></div>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="mutual-starting" value="0" oninput="calculate()" /></div>
     <label>Annual Contribution</label>
     <div class="input-wrap" id="mutual-contrib-wrap">
       <span class="input-prefix">$</span>
-      <input type="number" id="mutual-contrib" value="12000" oninput="calculate()" />
+      <input type="number" id="mutual-contrib" value="0" oninput="calculate()" />
       <span class="auto-tag" id="mutual-auto-tag" style="display:none">AUTO</span>
     </div>
     <label>Annual Return Rate</label>
-    <div class="input-wrap"><input type="number" id="mutual-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="input-wrap"><input type="number" id="mutual-rate" value="6" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
 </div>
 
-<!-- Private Equity -->
+<!-- Guidehouse Class A/B Equity -->
 <div class="section-card">
   <button class="section-header" style="border-left-color:#ffb74d" onclick="toggleCard('pe')">
     <div class="section-header-left">
       <div class="section-dot" style="background:#ffb74d"></div>
-      <span class="section-title">Private Equity</span>
+      <span class="section-title">Guidehouse Class A/B Equity</span>
     </div>
     <div class="section-header-right">
       <span class="section-val" id="card-val-pe">$0</span>
@@ -286,9 +286,9 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   </button>
   <div class="section-body" id="body-pe">
     <label>Starting Value</label>
-    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pe-starting" value="50000" oninput="calculate()" /></div>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pe-starting" value="300000" oninput="calculate()" /></div>
     <label>Capital Multiplier</label>
-    <div class="input-wrap"><input type="number" id="pe-multiplier" value="3" oninput="calculate()" /><span class="input-suffix">×</span></div>
+    <div class="input-wrap"><input type="number" id="pe-multiplier" value="3.5" oninput="calculate()" /><span class="input-suffix">×</span></div>
     <div class="field-label">Exit Year</div>
     <div class="exit-btns">
       <button class="exit-btn" id="exit-3" onclick="setExitYear(3)">Year 3</button>
@@ -296,7 +296,7 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
       <button class="exit-btn" id="exit-5" onclick="setExitYear(5)">Year 5</button>
     </div>
     <label>Post-Exit Annual Return Rate</label>
-    <div class="input-wrap"><input type="number" id="pe-postrate" value="10" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="input-wrap"><input type="number" id="pe-postrate" value="6" oninput="calculate()" /><span class="input-suffix">%</span></div>
     <p class="note" id="pe-note"></p>
   </div>
 </div>
@@ -306,7 +306,7 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   <button class="section-header" style="border-left-color:#ce93d8" onclick="toggleCard('pub')">
     <div class="section-header-left">
       <div class="section-dot" style="background:#ce93d8"></div>
-      <span class="section-title">Public Equity / RSUs</span>
+      <span class="section-title">AECOM Stock</span>
     </div>
     <div class="section-header-right">
       <span class="section-val" id="card-val-pub">$0</span>
@@ -315,11 +315,11 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   </button>
   <div class="section-body" id="body-pub">
     <label>Starting Value</label>
-    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-starting" value="20000" oninput="calculate()" /></div>
-    <label>Annual Contribution / RSU Vest</label>
-    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-contrib" value="10000" oninput="calculate()" /></div>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-starting" value="300000" oninput="calculate()" /></div>
+    <label>Annual Contribution</label>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-contrib" value="250000" oninput="calculate()" /></div>
     <label>Annual Return Rate</label>
-    <div class="input-wrap"><input type="number" id="pub-rate" value="8" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="input-wrap"><input type="number" id="pub-rate" value="6" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
 </div>
 
@@ -337,16 +337,14 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
   </button>
   <div class="section-body" id="body-home">
     <label>Current Equity Value</label>
-    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="home-starting" value="200000" oninput="calculate()" /></div>
+    <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="home-starting" value="400000" oninput="calculate()" /></div>
     <label>Annual Appreciation Rate</label>
-    <div class="input-wrap"><input type="number" id="home-rate" value="4" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    <div class="input-wrap"><input type="number" id="home-rate" value="1.5" oninput="calculate()" /><span class="input-suffix">%</span></div>
   </div>
 </div>
 
 <div class="btn-row" style="margin-top:20px;">
-  <button class="btn-primary" onclick="saveDefaults()">Save as Default</button>
-  <button class="btn-secondary" onclick="resetDefaults()">Restore Defaults</button>
-  <span class="save-msg" id="save-msg">✓ Saved</span>
+  <button class="btn-secondary" onclick="restoreDefaults()">Restore Defaults</button>
 </div>
 ```
 
@@ -360,54 +358,31 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
 
     // All input field IDs and their factory defaults
     const FIELDS = [
-      { id: 'k401-starting',  def: 50000 },
+      { id: 'k401-starting',  def: 140000 },
       { id: 'k401-contrib',   def: 22500 },
-      { id: 'k401-rate',      def: 7 },
-      { id: 'mutual-starting',def: 30000 },
-      { id: 'mutual-contrib', def: 12000 },
-      { id: 'mutual-rate',    def: 7 },
-      { id: 'pe-starting',    def: 50000 },
-      { id: 'pe-multiplier',  def: 3 },
-      { id: 'pe-postrate',    def: 10 },
-      { id: 'pub-starting',   def: 20000 },
-      { id: 'pub-contrib',    def: 10000 },
-      { id: 'pub-rate',       def: 8 },
-      { id: 'home-starting',  def: 200000 },
-      { id: 'home-rate',      def: 4 },
+      { id: 'k401-rate',      def: 6 },
+      { id: 'mutual-starting',def: 0 },
+      { id: 'mutual-contrib', def: 0 },
+      { id: 'mutual-rate',    def: 6 },
+      { id: 'pe-starting',    def: 300000 },
+      { id: 'pe-multiplier',  def: 3.5 },
+      { id: 'pe-postrate',    def: 6 },
+      { id: 'pub-starting',   def: 300000 },
+      { id: 'pub-contrib',    def: 250000 },
+      { id: 'pub-rate',       def: 6 },
+      { id: 'home-starting',  def: 400000 },
+      { id: 'home-rate',      def: 1.5 },
       { id: 'target-sum',     def: 0 },
     ];
     const FACTORY = { futureAge: 60, exitYear: 4 };
 
-    function loadDefaults() {
-      const saved = JSON.parse(localStorage.getItem('savings-defaults') || 'null');
-      if (!saved) return;
-      FIELDS.forEach(({ id }) => {
-        if (saved[id] !== undefined) document.getElementById(id).value = saved[id];
-      });
-      if (saved.futureAge !== undefined) {
-        futureAge = saved.futureAge;
-        document.getElementById('future-age').value = futureAge;
-        document.getElementById('future-age-display').textContent = futureAge;
-      }
-      if (saved.exitYear !== undefined) {
-        exitYear = saved.exitYear;
-        [3, 4, 5].forEach(n => document.getElementById('exit-' + n).classList.toggle('active', n === exitYear));
-      }
-    }
-
-    function saveDefaults() {
-      const data = {};
-      FIELDS.forEach(({ id }) => { data[id] = document.getElementById(id).value; });
-      data.futureAge = futureAge;
-      data.exitYear = exitYear;
-      localStorage.setItem('savings-defaults', JSON.stringify(data));
-      const msg = document.getElementById('save-msg');
-      msg.style.display = 'inline';
-      setTimeout(() => { msg.style.display = 'none'; }, 2000);
-    }
-
-    function resetDefaults() {
-      loadDefaults();
+    function restoreDefaults() {
+      FIELDS.forEach(({ id, def }) => { document.getElementById(id).value = def; });
+      futureAge = FACTORY.futureAge;
+      document.getElementById('future-age').value = futureAge;
+      document.getElementById('future-age-display').textContent = futureAge;
+      exitYear = FACTORY.exitYear;
+      [3, 4, 5].forEach(n => document.getElementById('exit-' + n).classList.toggle('active', n === exitYear));
       calculate();
     }
 
@@ -576,10 +551,7 @@ input[type=range] { width: 100%; cursor: pointer; accent-color: #7fd3ff; }
       calculate();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadDefaults();
-      calculate();
-    });
+    window.addEventListener('DOMContentLoaded', calculate);
   </script>
 
 </body>
