@@ -1,382 +1,533 @@
-import { useState, useEffect } from “react”;
+<!DOCTYPE html>
 
-const fmt = (v) =>
-v >= 1e6
-? `$${(v / 1e6).toFixed(2)}M`
-: v >= 1e3
-? `$${(v / 1e3).toFixed(1)}K`
-: `$${Math.round(v).toLocaleString()}`;
-
-const fmtFull = (v) => `$${Math.round(v).toLocaleString()}`;
-
-const C = {
-bg: “#0b1d2a”,
-card: “#0f2a3d”,
-cardInner: “#0c2434”,
-border: “rgba(255,255,255,0.08)”,
-borderStrong: “#3a5a6b”,
-borderInput: “#cfe8f5”,
-label: “#cfe8f5”,
-labelDim: “#9fc4d8”,
-text: “#ffffff”,
-textDim: “#b8d4e3”,
-inputBg: “#ffffff”,
-inputText: “#000000”,
-accent: “#7fd3ff”,
-btnPrimary: “#1b5e7a”,
-btnBorder: “#7fd3ff”,
-};
-
-function SliderInput({ label, value, min, max, step = 1, onChange }) {
-return (
-<div style={{ marginBottom: 14 }}>
-<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 5 }}>
-<label style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase” }}>{label}</label>
-<span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{value}</span>
-</div>
-<input
-type=“range” min={min} max={max} step={step} value={value}
-onChange={(e) => onChange(Number(e.target.value))}
-style={{ width: “100%”, accentColor: C.accent }}
-/>
-<div style={{ display: “flex”, justifyContent: “space-between”, marginTop: 3 }}>
-<span style={{ fontSize: 10, color: C.labelDim }}>{min}</span>
-<span style={{ fontSize: 10, color: C.labelDim }}>{max}</span>
-</div>
-</div>
-);
-}
-
-function NumInput({ label, value, onChange, suffix = “” }) {
-const [raw, setRaw] = useState(String(value));
-useEffect(() => { setRaw(String(value)); }, [value]);
-return (
-<div style={{ marginBottom: 10 }}>
-<label style={{ display: “block”, fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase”, marginBottom: 5 }}>{label}</label>
-<div style={{ display: “flex”, alignItems: “center”, border: `1px solid ${C.borderInput}`, borderRadius: 6, overflow: “hidden”, background: C.inputBg }}>
-{!suffix && <span style={{ padding: “0 8px”, color: “#666”, fontSize: 14, fontFamily: “Arial, sans-serif” }}>$</span>}
-<input
-type=“number” value={raw}
-onChange={(e) => { setRaw(e.target.value); onChange(Number(e.target.value) || 0); }}
-onBlur={() => setRaw(String(value))}
-style={{ flex: 1, background: “transparent”, border: “none”, outline: “none”, color: C.inputText, fontSize: 15, padding: “9px 4px”, fontFamily: “Arial, sans-serif”, fontWeight: 300 }}
-/>
-{suffix && <span style={{ padding: “0 10px”, color: “#666”, fontSize: 14, fontFamily: “Arial, sans-serif” }}>{suffix}</span>}
-</div>
-</div>
-);
-}
-
-function MutualContribInput({ label, value, onChange, targetActive, resolvedContrib }) {
-const displayVal = targetActive ? Math.round(resolvedContrib) : value;
-const [raw, setRaw] = useState(String(displayVal));
-useEffect(() => { setRaw(String(displayVal)); }, [displayVal]);
-return (
-<div style={{ marginBottom: 10 }}>
-<label style={{ display: “block”, fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase”, marginBottom: 5 }}>{label}</label>
-<div style={{ display: “flex”, alignItems: “center”, border: `1px solid ${targetActive ? C.btnBorder : C.borderInput}`, borderRadius: 6, overflow: “hidden”, background: C.inputBg }}>
-<span style={{ padding: “0 8px”, color: “#666”, fontSize: 14, fontFamily: “Arial, sans-serif” }}>$</span>
-<input
-type=“number” value={raw} readOnly={targetActive}
-onChange={(e) => { if (!targetActive) { setRaw(e.target.value); onChange(Number(e.target.value) || 0); } }}
-onBlur={() => setRaw(String(displayVal))}
-style={{ flex: 1, background: “transparent”, border: “none”, outline: “none”, color: targetActive ? “#1b5e7a” : C.inputText, fontSize: 15, padding: “9px 4px”, fontFamily: “Arial, sans-serif”, fontWeight: 300 }}
-/>
-{targetActive && <span style={{ padding: “0 10px”, fontSize: 11, color: C.btnPrimary, fontWeight: 600, fontFamily: “Arial, sans-serif” }}>AUTO</span>}
-</div>
-</div>
-);
-}
-
-function SectionCard({ title, color, value, children, isOpen, onToggle }) {
-return (
-<div style={{
-background: C.card,
-border: `1px solid ${C.borderStrong}`,
-borderLeft: `3px solid ${color}`,
-borderRadius: 10,
-marginBottom: 10,
-boxShadow: `0 0 0 1px ${C.border}`,
-overflow: “hidden”,
-}}>
-<button onClick={onToggle} style={{
-width: “100%”, display: “flex”, justifyContent: “space-between”, alignItems: “center”,
-padding: “13px 16px”, background: “transparent”, border: “none”, cursor: “pointer”,
-}}>
-<div style={{ display: “flex”, alignItems: “center”, gap: 10 }}>
-<div style={{ width: 8, height: 8, borderRadius: “50%”, background: color, flexShrink: 0 }} />
-<span style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: “0.5px”, textTransform: “uppercase” }}>{title}</span>
-</div>
-<div style={{ display: “flex”, alignItems: “center”, gap: 10 }}>
-<span style={{ fontSize: 15, fontWeight: 300, color: C.text }}>{value}</span>
-<span style={{ fontSize: 14, color: C.labelDim, display: “inline-block”, transform: isOpen ? “rotate(180deg)” : “none”, transition: “transform 0.2s” }}>▾</span>
-</div>
-</button>
-{isOpen && (
-<div style={{ padding: “4px 16px 14px”, borderTop: `1px solid ${C.borderStrong}` }}>
-{children}
-</div>
-)}
-</div>
-);
-}
-
-function computeSavings(state, currentAge, futureAge, mutualFundOverride = null) {
-const years = futureAge - currentAge;
-if (years <= 0) return { total: 0, breakdown: {} };
-
-const calc401k = () => {
-let v = state.k401.starting;
-for (let i = 0; i < years; i++) v = v * (1 + state.k401.rate / 100) + state.k401.contrib;
-return v;
-};
-
-const calcMutual = () => {
-const contrib = mutualFundOverride ?? state.mutual.contrib;
-let v = state.mutual.starting;
-for (let i = 0; i < years; i++) v = v * (1 + state.mutual.rate / 100) + contrib;
-return v;
-};
-
-const calcPE = () => {
-const finalPE = state.pe.starting * state.pe.multiplier;
-if (years <= state.pe.exitYear) {
-return state.pe.starting + (finalPE - state.pe.starting) * (years / state.pe.exitYear);
-}
-const remaining = years - state.pe.exitYear;
-let postV = finalPE;
-for (let i = 0; i < remaining; i++) postV = postV * (1 + state.pe.postRate / 100);
-return postV;
-};
-
-const calcPublic = () => {
-let v = state.pub.starting;
-for (let i = 0; i < years; i++) v = v * (1 + state.pub.rate / 100) + state.pub.contrib;
-return v;
-};
-
-const calcHome = () => state.home.starting * Math.pow(1 + state.home.rate / 100, years);
-
-const k401 = calc401k();
-const mutual = calcMutual();
-const pe = calcPE();
-const pub = calcPublic();
-const home = calcHome();
-
-return { total: k401 + mutual + pe + pub + home, breakdown: { k401, mutual, pe, pub, home } };
-}
-
-function solveContrib(state, currentAge, futureAge, target) {
-const years = futureAge - currentAge;
-if (years <= 0) return 0;
-const { breakdown } = computeSavings(state, currentAge, futureAge, 0);
-const fixed = breakdown.k401 + breakdown.pe + breakdown.pub + breakdown.home;
-const needed = target - fixed;
-if (needed <= 0) return 0;
-const r = state.mutual.rate / 100;
-const n = years;
-const fv_start = state.mutual.starting * Math.pow(1 + r, n);
-const fv_factor = r !== 0 ? (Math.pow(1 + r, n) - 1) / r : n;
-return Math.max(0, (needed - fv_start) / fv_factor);
-}
-
-export default function SavingsForecast() {
-const currentAge = 41;
-const [futureAge, setFutureAge] = useState(60);
-const [targetSum, setTargetSum] = useState(0);
-const [targetActive, setTargetActive] = useState(false);
-const [openCard, setOpenCard] = useState(“k401”);
-
-const [state, setState] = useState({
-k401:   { starting: 50000,  contrib: 22500, rate: 7 },
-mutual: { starting: 30000,  contrib: 12000, rate: 7 },
-pe:     { starting: 50000,  multiplier: 3,  exitYear: 4, postRate: 10 },
-pub:    { starting: 20000,  contrib: 10000, rate: 8 },
-home:   { starting: 200000, rate: 4 },
-});
-
-const set = (key, field) => (val) =>
-setState((s) => ({ …s, [key]: { …s[key], [field]: val } }));
-
-const resolvedContrib = targetActive && targetSum > 0
-? solveContrib(state, currentAge, futureAge, targetSum)
-: state.mutual.contrib;
-
-const { total, breakdown } = computeSavings(state, currentAge, futureAge, resolvedContrib);
-
-const cards = [
-{ key: “k401”,   label: “401(k)”,              color: “#4fc3f7” },
-{ key: “mutual”, label: “Mutual Funds”,         color: “#81c784” },
-{ key: “pe”,     label: “Private Equity”,       color: “#ffb74d” },
-{ key: “pub”,    label: “Public Equity / RSUs”, color: “#ce93d8” },
-{ key: “home”,   label: “Home Equity”,          color: “#f48fb1” },
-];
-
-const pct = (v) => total > 0 ? Math.round((v / total) * 100) : 0;
-const toggle = (key) => setOpenCard(openCard === key ? null : key);
-
-return (
-<div style={{
-fontFamily: “‘Inter’, Arial, sans-serif”,
-background: C.bg,
-backgroundImage: “linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)”,
-backgroundSize: “40px 40px”,
-minHeight: “100vh”,
-padding: “20px 14px 40px”,
-color: C.text,
-}}>
-<style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap'); * { box-sizing: border-box; } input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; } input[type=range] { cursor: pointer; }`}</style>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Savings Forecast</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Savings">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', Arial, sans-serif; }
 
 ```
-  {/* Header */}
-  <h1 style={{ fontSize: 24, fontWeight: 600, color: C.text, marginBottom: 6, letterSpacing: "0.5px" }}>Savings Forecast</h1>
-  <p style={{ color: C.textDim, fontSize: 13, lineHeight: 1.5, marginBottom: 20 }}>
-    Project your total savings across all asset classes to a target retirement age.
-  </p>
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: #0b1d2a;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  min-height: 100vh;
+  padding: 20px 14px 50px;
+  color: #fff;
+}
 
-  {/* Total result card */}
-  <div style={{
-    background: C.cardInner, border: `1px solid ${C.borderStrong}`, borderRadius: 10,
-    padding: "16px 20px", marginBottom: 12,
-    boxShadow: `0 0 0 1px ${C.border}, 0 8px 20px rgba(0,0,0,0.3)`,
-  }}>
-    <div style={{ fontSize: 11, fontWeight: 600, color: C.labelDim, textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: 5 }}>Total Projected Savings</div>
-    <div style={{ fontSize: 36, fontWeight: 300, color: C.text, lineHeight: 1 }}>{fmt(total)}</div>
-    <div style={{ fontSize: 12, color: C.labelDim, marginTop: 5 }}>at age {futureAge} · {futureAge - currentAge} years away</div>
+h1 { font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 6px; letter-spacing: 0.5px; }
+.subtitle { color: #b8d4e3; font-size: 13px; line-height: 1.5; margin-bottom: 20px; }
 
-    <div style={{ marginTop: 14 }}>
-      <div style={{ display: "flex", height: 5, borderRadius: 3, overflow: "hidden", gap: 1 }}>
-        {cards.map(({ key, color }) => (
-          <div key={key} style={{ flex: Math.max(pct(breakdown[key] ?? 0), 0.5), background: color, transition: "flex 0.4s" }} />
-        ))}
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginTop: 9 }}>
-        {cards.map(({ key, label, color }) => (
-          <div key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
-            <span style={{ fontSize: 10, color: C.labelDim }}>{label}</span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: C.text }}>{fmt(breakdown[key] ?? 0)}</span>
-          </div>
-        ))}
-      </div>
+.panel {
+  background: #0f2a3d;
+  border: 1px solid #3a5a6b;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+.panel-inner {
+  background: #0c2434;
+  border: 1px solid #3a5a6b;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.3);
+}
+
+label, .field-label {
+  display: block;
+  font-weight: 600;
+  font-size: 11px;
+  color: #cfe8f5;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.row label { margin-bottom: 0; }
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cfe8f5;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 10px;
+}
+.input-wrap.auto-mode { border-color: #7fd3ff; }
+.input-prefix, .input-suffix { padding: 0 8px; color: #666; font-size: 14px; font-family: Arial, sans-serif; }
+.input-suffix { padding: 0 10px; }
+.input-wrap input[type=number] {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: #000; font-size: 15px; padding: 9px 4px;
+  font-family: Arial, sans-serif; font-weight: 300;
+}
+.input-wrap input[type=number].auto-val { color: #1b5e7a; }
+.auto-tag { padding: 0 10px; font-size: 11px; color: #1b5e7a; font-weight: 600; }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+input[type=range] {
+  width: 100%; cursor: pointer; accent-color: #7fd3ff;
+}
+.slider-minmax { display: flex; justify-content: space-between; margin-top: 3px; }
+.slider-minmax span { font-size: 10px; color: #9fc4d8; }
+
+/* Total card */
+.total-label { font-size: 11px; font-weight: 600; color: #9fc4d8; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+.total-value { font-size: 36px; font-weight: 300; color: #fff; line-height: 1; }
+.total-sub { font-size: 12px; color: #9fc4d8; margin-top: 5px; }
+
+/* Breakdown bar */
+.bar-wrap { display: flex; height: 5px; border-radius: 3px; overflow: hidden; gap: 1px; margin-top: 14px; }
+.bar-seg { transition: flex 0.4s; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 9px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.legend-name { font-size: 10px; color: #9fc4d8; }
+.legend-val { font-size: 10px; font-weight: 600; color: #fff; }
+
+/* Section cards */
+.section-card {
+  border: 1px solid #3a5a6b;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+  overflow: hidden;
+  background: #0f2a3d;
+}
+.section-header {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 16px; background: transparent; border: none; cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.section-header-left { display: flex; align-items: center; gap: 10px; }
+.section-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.section-title { font-weight: 600; font-size: 11px; color: #cfe8f5; letter-spacing: 0.5px; text-transform: uppercase; }
+.section-header-right { display: flex; align-items: center; gap: 10px; }
+.section-val { font-size: 15px; font-weight: 300; color: #fff; }
+.section-chevron { font-size: 14px; color: #9fc4d8; transition: transform 0.2s; display: inline-block; }
+.section-chevron.open { transform: rotate(180deg); }
+.section-body { padding: 12px 16px 14px; border-top: 1px solid #3a5a6b; display: none; }
+.section-body.open { display: block; }
+
+/* Exit year buttons */
+.exit-btns { display: flex; gap: 8px; margin-bottom: 10px; }
+.exit-btn {
+  flex: 1; padding: 9px 0; border-radius: 6px; cursor: pointer;
+  font-size: 13px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;
+  background: transparent; color: #9fc4d8; border: 1px solid #5f7f8f;
+  transition: all 0.15s;
+}
+.exit-btn.active { background: #1b5e7a; color: #fff; border-color: #7fd3ff; }
+
+/* Target goal toggle */
+.toggle-btn {
+  padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  font-size: 12px; font-weight: 600; font-family: 'Inter', Arial, sans-serif;
+  letter-spacing: 0.5px; background: transparent; color: #9fc4d8;
+  border: 1px solid #5f7f8f; transition: all 0.15s;
+}
+.toggle-btn.active { background: #1b5e7a; color: #fff; border-color: #7fd3ff; }
+
+.note { font-size: 11px; color: #9fc4d8; margin-top: 6px; line-height: 1.5; }
+.msg-ok { font-size: 11px; color: #81c784; margin-top: 4px; }
+.msg-err { font-size: 11px; color: #ef9a9a; margin-top: 4px; }
+.target-hint { font-size: 11px; color: #9fc4d8; margin-top: 3px; }
+.target-hint span { color: #81c784; font-weight: 600; }
+```
+
+  </style>
+</head>
+<body>
+
+  <h1>Savings Forecast</h1>
+  <p class="subtitle">Project your total savings across all asset classes to a target retirement age.</p>
+
+  <!-- Total -->
+
+  <div class="panel-inner">
+    <div class="total-label">Total Projected Savings</div>
+    <div class="total-value" id="total-value">$0</div>
+    <div class="total-sub" id="total-sub">at age 60 · 19 years away</div>
+    <div class="bar-wrap" id="bar-wrap">
+      <div class="bar-seg" id="bar-k401"   style="background:#4fc3f7"></div>
+      <div class="bar-seg" id="bar-mutual" style="background:#81c784"></div>
+      <div class="bar-seg" id="bar-pe"     style="background:#ffb74d"></div>
+      <div class="bar-seg" id="bar-pub"    style="background:#ce93d8"></div>
+      <div class="bar-seg" id="bar-home"   style="background:#f48fb1"></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div><span class="legend-name">401(k)</span><span class="legend-val" id="leg-k401">$0</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#81c784"></div><span class="legend-name">Mutual Funds</span><span class="legend-val" id="leg-mutual">$0</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffb74d"></div><span class="legend-name">Private Equity</span><span class="legend-val" id="leg-pe">$0</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ce93d8"></div><span class="legend-name">Public Equity / RSUs</span><span class="legend-val" id="leg-pub">$0</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f48fb1"></div><span class="legend-name">Home Equity</span><span class="legend-val" id="leg-home">$0</span></div>
     </div>
   </div>
 
-  {/* Age panel */}
-  <div style={{
-    background: C.card, border: `1px solid ${C.borderStrong}`, borderRadius: 10,
-    padding: "16px 18px", marginBottom: 12,
-    boxShadow: `0 0 0 1px ${C.border}`,
-  }}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-      <label style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: "0.5px", textTransform: "uppercase" }}>Current Age</label>
-      <span style={{ fontSize: 15, fontWeight: 600, color: C.text }}>41</span>
+  <!-- Age -->
+
+  <div class="panel">
+    <div class="row" style="margin-bottom:16px;">
+      <label style="margin-bottom:0">Current Age</label>
+      <span style="font-size:15px;font-weight:600;color:#fff;">41</span>
     </div>
-    <SliderInput label="Forecast to Age" value={futureAge} min={42} max={90} onChange={setFutureAge} />
+    <div>
+      <div class="row">
+        <label style="margin-bottom:0">Forecast to Age</label>
+        <span style="font-size:13px;font-weight:600;color:#fff;" id="future-age-display">60</span>
+      </div>
+      <input type="range" id="future-age" min="42" max="90" value="60" oninput="onFutureAge(this.value)" />
+      <div class="slider-minmax"><span>42</span><span>90</span></div>
+    </div>
   </div>
 
-  {/* Target Goal */}
-  <div style={{
-    background: C.card, border: `1px solid ${targetActive ? C.btnBorder + "99" : C.borderStrong}`,
-    borderRadius: 10, padding: "14px 18px", marginBottom: 12,
-    boxShadow: `0 0 0 1px ${C.border}`,
-  }}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: targetActive ? 12 : 0 }}>
+  <!-- Target Goal -->
+
+  <div class="panel" id="target-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <div style={{ fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: "0.5px", textTransform: "uppercase" }}>Target Goal</div>
-        {targetActive && resolvedContrib > 0 && (
-          <div style={{ fontSize: 11, color: C.labelDim, marginTop: 3 }}>
-            Mutual fund contrib → <span style={{ color: "#81c784", fontWeight: 600 }}>{fmtFull(resolvedContrib)}/yr</span>
-          </div>
-        )}
+        <div class="field-label" style="margin-bottom:0">Target Goal</div>
+        <div class="target-hint" id="target-hint" style="display:none"></div>
       </div>
-      <button onClick={() => setTargetActive((v) => !v)} style={{
-        padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600,
-        fontFamily: "'Inter', Arial, sans-serif", letterSpacing: "0.5px",
-        background: targetActive ? C.btnPrimary : "transparent",
-        color: targetActive ? "#fff" : C.labelDim,
-        border: `1px solid ${targetActive ? C.btnBorder : "#5f7f8f"}`,
-      }}>
-        {targetActive ? "ON" : "OFF"}
-      </button>
+      <button class="toggle-btn" id="target-toggle" onclick="toggleTarget()">OFF</button>
     </div>
-    {targetActive && (
-      <>
-        <NumInput label="Desired Total at Future Age" value={targetSum} onChange={setTargetSum} />
-        {targetSum > 0 && total >= targetSum && (
-          <p style={{ fontSize: 11, color: "#81c784", marginTop: 4 }}>✓ Goal achievable — mutual fund contributions adjusted</p>
-        )}
-        {targetSum > 0 && resolvedContrib === 0 && total < targetSum && (
-          <p style={{ fontSize: 11, color: "#ef9a9a", marginTop: 4 }}>⚠ Goal not reachable within this timeframe</p>
-        )}
-      </>
-    )}
+    <div id="target-inputs" style="display:none;margin-top:12px;">
+      <div class="field-label">Desired Total at Future Age</div>
+      <div class="input-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" id="target-sum" value="0" oninput="calculate()" />
+      </div>
+      <div id="target-msg"></div>
+    </div>
   </div>
 
-  {/* 401k */}
-  <SectionCard title="401(k)" color="#4fc3f7" value={fmt(breakdown.k401 ?? 0)} isOpen={openCard === "k401"} onToggle={() => toggle("k401")}>
-    <div style={{ height: 12 }} />
-    <NumInput label="Starting Value" value={state.k401.starting} onChange={set("k401", "starting")} />
-    <NumInput label="Annual Contribution" value={state.k401.contrib} onChange={set("k401", "contrib")} />
-    <NumInput label="Annual Return Rate" value={state.k401.rate} onChange={set("k401", "rate")} suffix="%" />
-  </SectionCard>
+  <!-- 401k -->
 
-  {/* Mutual Funds */}
-  <SectionCard title="Mutual Funds" color="#81c784" value={fmt(breakdown.mutual ?? 0)} isOpen={openCard === "mutual"} onToggle={() => toggle("mutual")}>
-    <div style={{ height: 12 }} />
-    <NumInput label="Starting Value" value={state.mutual.starting} onChange={set("mutual", "starting")} />
-    <MutualContribInput
-      label="Annual Contribution"
-      value={state.mutual.contrib}
-      onChange={set("mutual", "contrib")}
-      targetActive={targetActive}
-      resolvedContrib={resolvedContrib}
-    />
-    <NumInput label="Annual Return Rate" value={state.mutual.rate} onChange={set("mutual", "rate")} suffix="%" />
-  </SectionCard>
-
-  {/* Private Equity */}
-  <SectionCard title="Private Equity" color="#ffb74d" value={fmt(breakdown.pe ?? 0)} isOpen={openCard === "pe"} onToggle={() => toggle("pe")}>
-    <div style={{ height: 12 }} />
-    <NumInput label="Starting Value" value={state.pe.starting} onChange={set("pe", "starting")} />
-    <NumInput label="Capital Multiplier" value={state.pe.multiplier} onChange={set("pe", "multiplier")} suffix="×" />
-    <div style={{ marginBottom: 10 }}>
-      <label style={{ display: "block", fontWeight: 600, fontSize: 11, color: C.label, letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 5 }}>Exit Year</label>
-      <div style={{ display: "flex", gap: 8 }}>
-        {[3, 4, 5].map((y) => (
-          <button key={y} onClick={() => set("pe", "exitYear")(y)} style={{
-            flex: 1, padding: "9px 0", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600,
-            fontFamily: "'Inter', Arial, sans-serif",
-            background: state.pe.exitYear === y ? C.btnPrimary : "transparent",
-            color: state.pe.exitYear === y ? "#fff" : C.labelDim,
-            border: `1px solid ${state.pe.exitYear === y ? C.btnBorder : "#5f7f8f"}`,
-          }}>Year {y}</button>
-        ))}
+  <div class="section-card">
+    <button class="section-header" style="border-left-color:#4fc3f7" onclick="toggleCard('k401')">
+      <div class="section-header-left">
+        <div class="section-dot" style="background:#4fc3f7"></div>
+        <span class="section-title">401(k)</span>
       </div>
+      <div class="section-header-right">
+        <span class="section-val" id="card-val-k401">$0</span>
+        <span class="section-chevron open" id="chev-k401">▾</span>
+      </div>
+    </button>
+    <div class="section-body open" id="body-k401">
+      <label>Starting Value</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-starting" value="50000" oninput="calculate()" /></div>
+      <label>Annual Contribution</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="k401-contrib" value="22500" oninput="calculate()" /></div>
+      <label>Annual Return Rate</label>
+      <div class="input-wrap"><input type="number" id="k401-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
     </div>
-    <NumInput label="Post-Exit Annual Return Rate" value={state.pe.postRate} onChange={set("pe", "postRate")} suffix="%" />
-    <p style={{ fontSize: 11, color: C.labelDim, marginTop: 6, lineHeight: 1.5 }}>
-      Exit value of {fmt(state.pe.starting * state.pe.multiplier)} at year {state.pe.exitYear}, then compounds at {state.pe.postRate}% annually.
-    </p>
-  </SectionCard>
+  </div>
 
-  {/* Public Equity */}
-  <SectionCard title="Public Equity / RSUs" color="#ce93d8" value={fmt(breakdown.pub ?? 0)} isOpen={openCard === "pub"} onToggle={() => toggle("pub")}>
-    <div style={{ height: 12 }} />
-    <NumInput label="Starting Value" value={state.pub.starting} onChange={set("pub", "starting")} />
-    <NumInput label="Annual Contribution / RSU Vest" value={state.pub.contrib} onChange={set("pub", "contrib")} />
-    <NumInput label="Annual Return Rate" value={state.pub.rate} onChange={set("pub", "rate")} suffix="%" />
-  </SectionCard>
+  <!-- Mutual Funds -->
 
-  {/* Home Equity */}
-  <SectionCard title="Home Equity" color="#f48fb1" value={fmt(breakdown.home ?? 0)} isOpen={openCard === "home"} onToggle={() => toggle("home")}>
-    <div style={{ height: 12 }} />
-    <NumInput label="Current Equity Value" value={state.home.starting} onChange={set("home", "starting")} />
-    <NumInput label="Annual Appreciation Rate" value={state.home.rate} onChange={set("home", "rate")} suffix="%" />
-  </SectionCard>
+  <div class="section-card">
+    <button class="section-header" style="border-left-color:#81c784" onclick="toggleCard('mutual')">
+      <div class="section-header-left">
+        <div class="section-dot" style="background:#81c784"></div>
+        <span class="section-title">Mutual Funds</span>
+      </div>
+      <div class="section-header-right">
+        <span class="section-val" id="card-val-mutual">$0</span>
+        <span class="section-chevron" id="chev-mutual">▾</span>
+      </div>
+    </button>
+    <div class="section-body" id="body-mutual">
+      <label>Starting Value</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="mutual-starting" value="30000" oninput="calculate()" /></div>
+      <label>Annual Contribution</label>
+      <div class="input-wrap" id="mutual-contrib-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" id="mutual-contrib" value="12000" oninput="calculate()" />
+        <span class="auto-tag" id="mutual-auto-tag" style="display:none">AUTO</span>
+      </div>
+      <label>Annual Return Rate</label>
+      <div class="input-wrap"><input type="number" id="mutual-rate" value="7" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    </div>
+  </div>
 
-</div>
-```
+  <!-- Private Equity -->
 
-);
-}
+  <div class="section-card">
+    <button class="section-header" style="border-left-color:#ffb74d" onclick="toggleCard('pe')">
+      <div class="section-header-left">
+        <div class="section-dot" style="background:#ffb74d"></div>
+        <span class="section-title">Private Equity</span>
+      </div>
+      <div class="section-header-right">
+        <span class="section-val" id="card-val-pe">$0</span>
+        <span class="section-chevron" id="chev-pe">▾</span>
+      </div>
+    </button>
+    <div class="section-body" id="body-pe">
+      <label>Starting Value</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pe-starting" value="50000" oninput="calculate()" /></div>
+      <label>Capital Multiplier</label>
+      <div class="input-wrap"><input type="number" id="pe-multiplier" value="3" oninput="calculate()" /><span class="input-suffix">×</span></div>
+      <div class="field-label">Exit Year</div>
+      <div class="exit-btns">
+        <button class="exit-btn" id="exit-3" onclick="setExitYear(3)">Year 3</button>
+        <button class="exit-btn active" id="exit-4" onclick="setExitYear(4)">Year 4</button>
+        <button class="exit-btn" id="exit-5" onclick="setExitYear(5)">Year 5</button>
+      </div>
+      <label>Post-Exit Annual Return Rate</label>
+      <div class="input-wrap"><input type="number" id="pe-postrate" value="10" oninput="calculate()" /><span class="input-suffix">%</span></div>
+      <p class="note" id="pe-note"></p>
+    </div>
+  </div>
+
+  <!-- Public Equity -->
+
+  <div class="section-card">
+    <button class="section-header" style="border-left-color:#ce93d8" onclick="toggleCard('pub')">
+      <div class="section-header-left">
+        <div class="section-dot" style="background:#ce93d8"></div>
+        <span class="section-title">Public Equity / RSUs</span>
+      </div>
+      <div class="section-header-right">
+        <span class="section-val" id="card-val-pub">$0</span>
+        <span class="section-chevron" id="chev-pub">▾</span>
+      </div>
+    </button>
+    <div class="section-body" id="body-pub">
+      <label>Starting Value</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-starting" value="20000" oninput="calculate()" /></div>
+      <label>Annual Contribution / RSU Vest</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="pub-contrib" value="10000" oninput="calculate()" /></div>
+      <label>Annual Return Rate</label>
+      <div class="input-wrap"><input type="number" id="pub-rate" value="8" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    </div>
+  </div>
+
+  <!-- Home Equity -->
+
+  <div class="section-card">
+    <button class="section-header" style="border-left-color:#f48fb1" onclick="toggleCard('home')">
+      <div class="section-header-left">
+        <div class="section-dot" style="background:#f48fb1"></div>
+        <span class="section-title">Home Equity</span>
+      </div>
+      <div class="section-header-right">
+        <span class="section-val" id="card-val-home">$0</span>
+        <span class="section-chevron" id="chev-home">▾</span>
+      </div>
+    </button>
+    <div class="section-body" id="body-home">
+      <label>Current Equity Value</label>
+      <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="home-starting" value="200000" oninput="calculate()" /></div>
+      <label>Annual Appreciation Rate</label>
+      <div class="input-wrap"><input type="number" id="home-rate" value="4" oninput="calculate()" /><span class="input-suffix">%</span></div>
+    </div>
+  </div>
+
+  <script>
+    const CURRENT_AGE = 41;
+    let futureAge = 60;
+    let exitYear = 4;
+    let targetActive = false;
+
+    function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+    function fmt(val) {
+      if (val >= 1e6) return '$' + (val / 1e6).toFixed(2) + 'M';
+      if (val >= 1e3) return '$' + (val / 1e3).toFixed(1) + 'K';
+      return '$' + Math.round(val).toLocaleString();
+    }
+    function fmtFull(val) { return '$' + Math.round(val).toLocaleString(); }
+
+    function calc401k(years) {
+      let val = v('k401-starting');
+      const rate = v('k401-rate') / 100;
+      const contrib = v('k401-contrib');
+      for (let i = 0; i < years; i++) val = val * (1 + rate) + contrib;
+      return val;
+    }
+
+    function calcMutual(years, contribOverride) {
+      let val = v('mutual-starting');
+      const rate = v('mutual-rate') / 100;
+      const contrib = contribOverride !== undefined ? contribOverride : v('mutual-contrib');
+      for (let i = 0; i < years; i++) val = val * (1 + rate) + contrib;
+      return val;
+    }
+
+    function calcPE(years) {
+      const start = v('pe-starting');
+      const mult = v('pe-multiplier');
+      const postRate = v('pe-postrate') / 100;
+      const finalPE = start * mult;
+      if (years <= exitYear) {
+        return start + (finalPE - start) * (years / exitYear);
+      }
+      let postV = finalPE;
+      const remaining = years - exitYear;
+      for (let i = 0; i < remaining; i++) postV = postV * (1 + postRate);
+      return postV;
+    }
+
+    function calcPublic(years) {
+      let val = v('pub-starting');
+      const rate = v('pub-rate') / 100;
+      const contrib = v('pub-contrib');
+      for (let i = 0; i < years; i++) val = val * (1 + rate) + contrib;
+      return val;
+    }
+
+    function calcHome(years) {
+      return v('home-starting') * Math.pow(1 + v('home-rate') / 100, years);
+    }
+
+    function solveContrib(years, target) {
+      const fixed = calc401k(years) + calcPE(years) + calcPublic(years) + calcHome(years);
+      const needed = target - fixed;
+      if (needed <= 0) return 0;
+      const r = v('mutual-rate') / 100;
+      const n = years;
+      const fvStart = v('mutual-starting') * Math.pow(1 + r, n);
+      const fvFactor = r !== 0 ? (Math.pow(1 + r, n) - 1) / r : n;
+      return Math.max(0, (needed - fvStart) / fvFactor);
+    }
+
+    function calculate() {
+      const years = futureAge - CURRENT_AGE;
+      if (years <= 0) return;
+
+      const targetSum = targetActive ? (parseFloat(document.getElementById('target-sum').value) || 0) : 0;
+      let resolvedContrib = v('mutual-contrib');
+
+      if (targetActive && targetSum > 0) {
+        resolvedContrib = solveContrib(years, targetSum);
+        const mutualInput = document.getElementById('mutual-contrib');
+        mutualInput.value = Math.round(resolvedContrib);
+        mutualInput.classList.add('auto-val');
+        document.getElementById('mutual-auto-tag').style.display = '';
+        document.getElementById('mutual-contrib-wrap').classList.add('auto-mode');
+      } else {
+        const mutualInput = document.getElementById('mutual-contrib');
+        mutualInput.classList.remove('auto-val');
+        document.getElementById('mutual-auto-tag').style.display = 'none';
+        document.getElementById('mutual-contrib-wrap').classList.remove('auto-mode');
+      }
+
+      const k401  = calc401k(years);
+      const mutual = calcMutual(years, targetActive && targetSum > 0 ? resolvedContrib : undefined);
+      const pe    = calcPE(years);
+      const pub   = calcPublic(years);
+      const home  = calcHome(years);
+      const total = k401 + mutual + pe + pub + home;
+
+      // Update total
+      document.getElementById('total-value').textContent = fmt(total);
+      document.getElementById('total-sub').textContent = `at age ${futureAge} · ${years} years away`;
+
+      // Update legend
+      document.getElementById('leg-k401').textContent   = fmt(k401);
+      document.getElementById('leg-mutual').textContent = fmt(mutual);
+      document.getElementById('leg-pe').textContent     = fmt(pe);
+      document.getElementById('leg-pub').textContent    = fmt(pub);
+      document.getElementById('leg-home').textContent   = fmt(home);
+
+      // Update bar
+      const pct = (val) => total > 0 ? Math.max((val / total) * 100, 0.5) : 0.5;
+      document.getElementById('bar-k401').style.flex   = pct(k401);
+      document.getElementById('bar-mutual').style.flex = pct(mutual);
+      document.getElementById('bar-pe').style.flex     = pct(pe);
+      document.getElementById('bar-pub').style.flex    = pct(pub);
+      document.getElementById('bar-home').style.flex   = pct(home);
+
+      // Update section card values
+      document.getElementById('card-val-k401').textContent   = fmt(k401);
+      document.getElementById('card-val-mutual').textContent = fmt(mutual);
+      document.getElementById('card-val-pe').textContent     = fmt(pe);
+      document.getElementById('card-val-pub').textContent    = fmt(pub);
+      document.getElementById('card-val-home').textContent   = fmt(home);
+
+      // PE note
+      const peStart = v('pe-starting');
+      const peExit = peStart * v('pe-multiplier');
+      document.getElementById('pe-note').textContent =
+        `Exit value of ${fmt(peExit)} at year ${exitYear}, then compounds at ${v('pe-postrate')}% annually.`;
+
+      // Target messages
+      if (targetActive && targetSum > 0) {
+        const hint = document.getElementById('target-hint');
+        hint.style.display = '';
+        hint.innerHTML = `Mutual fund contrib → <span>${fmtFull(resolvedContrib)}/yr</span>`;
+        const msg = document.getElementById('target-msg');
+        if (total >= targetSum) {
+          msg.className = 'msg-ok';
+          msg.textContent = '✓ Goal achievable — mutual fund contributions adjusted';
+        } else {
+          msg.className = 'msg-err';
+          msg.textContent = '⚠ Goal not reachable within this timeframe';
+        }
+      } else {
+        document.getElementById('target-hint').style.display = 'none';
+        document.getElementById('target-msg').textContent = '';
+      }
+    }
+
+    function onFutureAge(val) {
+      futureAge = parseInt(val);
+      document.getElementById('future-age-display').textContent = futureAge;
+      calculate();
+    }
+
+    function setExitYear(y) {
+      exitYear = y;
+      [3,4,5].forEach(n => {
+        document.getElementById('exit-' + n).classList.toggle('active', n === y);
+      });
+      calculate();
+    }
+
+    function toggleCard(key) {
+      const body = document.getElementById('body-' + key);
+      const chev = document.getElementById('chev-' + key);
+      const open = body.classList.toggle('open');
+      chev.classList.toggle('open', open);
+    }
+
+    function toggleTarget() {
+      targetActive = !targetActive;
+      const btn = document.getElementById('target-toggle');
+      btn.textContent = targetActive ? 'ON' : 'OFF';
+      btn.classList.toggle('active', targetActive);
+      document.getElementById('target-inputs').style.display = targetActive ? 'block' : 'none';
+      if (!targetActive) {
+        // Restore user's manual contrib value
+        document.getElementById('mutual-contrib').classList.remove('auto-val');
+        document.getElementById('mutual-auto-tag').style.display = 'none';
+        document.getElementById('mutual-contrib-wrap').classList.remove('auto-mode');
+        document.getElementById('target-hint').style.display = 'none';
+        document.getElementById('target-msg').textContent = '';
+      }
+      calculate();
+    }
+
+    calculate();
+  </script>
+
+</body>
+</html>
